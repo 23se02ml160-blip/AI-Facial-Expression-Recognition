@@ -313,22 +313,7 @@ def should_log_detection(display_name: str) -> bool:
 
 load_face_encodings_to_memory()
 
-DEEPFACE_LOAD_STATUS = "loading"
-
-
-def preload_deepface_model():
-    global DEEPFACE_LOAD_STATUS
-    try:
-        from deepface import DeepFace as DeepFaceModule
-        DeepFaceModule.build_model("VGG-Face")
-        DEEPFACE_LOAD_STATUS = "ready"
-        os.environ['SKIP_DEEPFACE'] = '0'
-    except Exception as e:
-        print(f"[ERROR] Background DeepFace preloading failed: {e}")
-        DEEPFACE_LOAD_STATUS = "failed"
-
-
-threading.Thread(target=preload_deepface_model, daemon=True).start()
+DEEPFACE_LOAD_STATUS = "disabled"
 
 
 def get_emotion_label(face_image):
