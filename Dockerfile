@@ -21,4 +21,4 @@ COPY . .
 EXPOSE 7860
 
 # Start the app using Gunicorn (1 worker to save RAM)
-CMD ["gunicorn", "-b", "0.0.0.0:7860", "--timeout", "120", "--workers", "1", "app:app"]
+CMD gunicorn --bind 0.0.0.0:$PORT --timeout 300 --workers 1 app:app
