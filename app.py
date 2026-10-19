@@ -9,6 +9,7 @@ import time
 import threading
 import base64
 import io
+import resend
 from PIL import Image
 from io import StringIO, BytesIO
 from functools import wraps
@@ -119,22 +120,20 @@ def send_otp_email(receiver_email, otp):
     subject = "Your OTP for AI Facial Expression Recognition"
     body = f"Hello, your OTP is: {otp}. It is valid for 5 minutes."
 
-    msg = MIMEMultipart()
-    msg['From'] = EMAIL_ADDRESS
-    msg['To'] = receiver_email
-    msg['Subject'] = subject
-    msg.attach(MIMEText(body, 'plain'))
-
-    if not EMAIL_ADDRESS or not EMAIL_PASSWORD:
-        print("[WARNING] EMAIL_ADDRESS/EMAIL_PASSWORD not set in .env")
+    resend.api_key = os.getenv("RESEND_API_KEY", "")
+    
+    if not resend.api_key:
+        print("[ERROR] RESEND_API_KEY is not set.")
         return False
 
     try:
-        server = smtplib.SMTP('smtp.gmail.com', 465)
-        
-        server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-        server.send_message(msg)
-        server.quit()
+        params = {
+            "from": "onboarding@resend.dev",
+            "to": [receiver_email],
+            "subject": subject,
+            "text": body,
+        }
+        resend.Emails.send(params)
         print(f"[SUCCESS] Real OTP sent to {receiver_email}")
         return True
     except Exception as e:
