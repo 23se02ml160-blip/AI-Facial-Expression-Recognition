@@ -111,8 +111,8 @@ _MODEL_CANDIDATES = [
 ]
 MODEL_PATH = next((p for p in _MODEL_CANDIDATES if os.path.exists(p)), _MODEL_CANDIDATES[0])
 
-EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS", "")
-EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "")
+EMAIL_ADDRESS = os.getenv("aifacialexpressionrecognition@gmail.com", "")
+EMAIL_PASSWORD = os.getenv("gikh crlt ewfy cuwf", "")
 
 
 def send_otp_email(receiver_email, otp):
@@ -130,8 +130,8 @@ def send_otp_email(receiver_email, otp):
         return False
 
     try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
+        server = smtplib.SMTP('smtp.gmail.com', 465)
+        
         server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         server.send_message(msg)
         server.quit()
