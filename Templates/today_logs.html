@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Today's Detections</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="admin-container">
+        <h1 style="text-align:center; color:white;">Today's Detections</h1>
+        <table class="admin-table">
+            <thead><tr><th>Person</th><th>Emotion</th><th>Detected At</th></tr></thead>
+            <tbody>
+                {% for log in logs %}
+                <tr><td>{{ log.person_name }}</td><td>{{ log.emotion }}</td><td>{{ log.detected_at }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div style="text-align:center; margin-top:20px;">
+            <a href="{{ url_for('index') }}" class="home-btn camera-btn">Back to Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

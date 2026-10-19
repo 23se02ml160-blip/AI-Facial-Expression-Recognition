@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t.live_camera }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        .camera-page {
+            display: flex;
+            gap: 30px;
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .camera-left {
+            flex: 2;
+            min-width: 400px;
+        }
+        .camera-right {
+            flex: 1;
+            min-width: 250px;
+            background: rgba(0,0,0,0.7);
+            padding: 25px;
+            border-radius: 12px;
+            color: white;
+        }
+        /* Changed from img to canvas */
+        .camera-left canvas {
+            width: 100%;
+            border-radius: 12px;
+            border: 2px solid #333;
+            background: #111;
+            object-fit: cover;
+        }
+        .camera-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .camera-status .fa-circle {
+            font-size: 12px;
+        }
+        .info-card {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .info-card h3 {
+            margin: 8px 0 0;
+            font-size: 22px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .info-card p {
+            margin: 0;
+            color: #aaa;
+            font-size: 13px;
+        }
+        .camera-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .camera-buttons a {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .camera-home {
+            background: #333;
+            color: white;
+        }
+        .camera-home:hover { background: #555; }
+        .camera-stop {
+            background: #dc2626;
+            color: white;
+        }
+        .camera-stop:hover { background: #b91c1c; }
+        #detectionMessage {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid #22c55e;
+            border-radius: 8px;
+            color: #22c55e;
+            font-weight: bold;
+            display: none;
+        }
+        @media (max-width: 700px) {
+            .camera-page { flex-direction: column; }
+            .camera-left { min-width: unset; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="camera-page">
+    <div class="camera-left">
+        <h2><i class="fa-solid fa-camera"></i> {{ t.live_camera }}</h2>
+        <div class="camera-status" id="statusBar">
+            <i class="fa-solid fa-circle" id="statusIndicator" style="color:#fbbf24;"></i>
+            <span id="statusText">Starting Camera...</span>
+        </div>
+
+        <!-- Hidden Video Tag to Capture Webcam -->
+        <video id="webcam" autoplay playsinline style="display: none;"></video>
+        
+        <!-- Visible Canvas for Display and AI Boxes -->
+        <canvas id="overlay"></canvas>
+
+        <div id="detectionMessage">
+            <i class="fa-solid fa-check-circle"></i>
+            {{ t.detection_complete }}
+        </div>
+    </div>
+
+    <div class="camera-right">
+        <h2><i class="fa-solid fa-chart-simple"></i> {{ t.detection_result }}</h2>
+
+        <div class="info-card">
+            <i class="fa-solid fa-user fa-2x" style="color:#60a5fa;"></i>
+            <p><strong>{{ t.person }}</strong></p>
+            <h3 id="personName">{{ t.waiting }}</h3>
+        </div>
+
+        <div class="info-card">
+            <i class="fa-solid fa-face-smile fa-2x" style="color:#fbbf24;"></i>
+            <p><strong>{{ t.emotion }}</strong></p>
+            <h3 id="emotion">{{ t.detecting }}</h3>
+        </div>
+
+        <div class="info-card">
+            <i class="fa-solid fa-chart-line fa-2x" style="color:#34d399;"></i>
+            <p><strong>{{ t.confidence }}</strong></p>
+            <h3 id="confidence">0%</h3>
+        </div>
+
+        <div class="info-card">
+            <i class="fa-solid fa-video fa-2x" style="color:#a78bfa;"></i>
+            <p><strong>{{ t.status }}</strong></p>
+            <h3 id="statusDisplay" style="color:#22c55e;">🟢 {{ t.running }}</h3>
+        </div>
+
+        <div class="camera-buttons">
+            <a href="{{ url_for('index') }}" class="camera-home">
+                <i class="fa-solid fa-house"></i> {{ t.home }}
+            </a>
+            <a href="{{ url_for('stop_camera') }}" class="camera-stop" id="stopButton">
+                <i class="fa-solid fa-stop"></i> {{ t.stop_camera }}
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- LIVE STATS COUNTER -->
+<div id="liveCounter" style="position: fixed; top: 20px; right: 20px; background: rgba(8,20,45,0.95); padding: 20px; border-radius: 15px; border: 2px solid #2563eb; color: white; font-family: Poppins; z-index: 9999;">
+    <h4 style="margin: 0 0 10px; color: #00d2ff;">📊 {{ t.live_stats }}</h4>
+    <p style="margin: 5px 0;">{{ t.session_time }}: <span id="sessionTime" style="color: #22c55e; font-weight: bold;">0s</span></p>
+    <p style="margin: 5px 0;">{{ t.detections_count }}: <span id="detectionCount" style="color: #22c55e; font-weight: bold;">0</span></p>
+    <p style="margin: 5px 0;">{{ t.last_emotion }}: <span id="lastEmotion" style="color: #fbbf24; font-weight: bold;">--</span></p>
+</div>
+
+<script>
+    const video = document.getElementById('webcam');
+    const canvas = document.getElementById('overlay');
+    const ctx = canvas.getContext('2d');
+    
+    const personNameEl = document.getElementById('personName');
+    const emotionEl = document.getElementById('emotion');
+    const confidenceEl = document.getElementById('confidence');
+
+    // 1. Start the Webcam
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ 
+    video: { 
+        facingMode: "user" // Forces the front-facing / laptop camera
+    } 
+})
+            .then(function (stream) {
+                video.srcObject = stream;
+                video.play();
+                video.onplaying = () => {
+                    // Match canvas size to video size
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    
+                    // Update status UI
+                    document.getElementById('statusIndicator').style.color = '#22c55e';
+                    document.getElementById('statusText').innerText = '{{ t.camera_online }}';
+                    
+                    // Start sending frames
+                    processLoop();
+                };
+            })
+            .catch(function (error) {
+                document.getElementById('statusIndicator').style.color = '#ef4444';
+                document.getElementById('statusText').innerText = 'Camera Blocked!';
+                alert("Please allow camera permissions in your browser. Note: Webcam requires localhost or https.");
+            });
+    }
+
+    // 2. Frame Processing Loop
+    let isProcessing = false;
+    let cameraWasRunning = false;
+
+    async function processLoop() {
+        if (video.paused || video.ended) return;
+
+        // Draw the video onto the canvas (mirror effect looks better for webcam)
+        ctx.save();
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+        ctx.restore();
+
+        if (!isProcessing) {
+            isProcessing = true;
+            
+            // Capture the current frame (without the mirror effect for the AI)
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            tempCanvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = tempCanvas.toDataURL('image/jpeg', 0.8);
+
+            fetch('/process_frame', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: imageData })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.faces.length > 0) {
+                        cameraWasRunning = true;
+                        const face = data.faces[0]; // Take the first face
+
+                        // Draw box (Remember to mirror the X coordinate because of the canvas mirroring)
+                        const mirroredX = canvas.width - (face.x + face.w);
+                        
+                        ctx.strokeStyle = '#00FF00';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(mirroredX, face.y, face.w, face.h);
+
+                        // Draw text
+                        ctx.fillStyle = '#00FF00';
+                        ctx.font = '20px Arial';
+                        ctx.fillText(`${face.name} | ${face.emotion}`, mirroredX, face.y - 10);
+
+                        // Update Side Panel
+                        personNameEl.innerText = face.name;
+                        emotionEl.innerText = face.emotion;
+                        confidenceEl.innerText = face.confidence ? face.confidence.toFixed(1) + '%' : '0%';
+                    } else {
+                        personNameEl.innerText = 'Unknown Person';
+                        emotionEl.innerText = 'Detecting...';
+                        confidenceEl.innerText = '0%';
+                    }
+                }
+                isProcessing = false;
+            })
+            .catch(err => {
+                console.error(err);
+                isProcessing = false;
+            });
+        }
+
+        // Loop at ~15 FPS
+        setTimeout(processLoop, 66);
+    }
+
+    // 3. Live Stats Overlay Script
+    let startTime = Date.now();
+    let detectionCount = 0;
+    let lastPerson = "";
+
+    setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        document.getElementById('sessionTime').innerText = elapsed + "s";
+    }, 1000);
+
+    // This uses the old global endpoint just for the overlay counter
+    setInterval(async () => {
+        try {
+            const res = await fetch('/current_detection');
+            const data = await res.json();
+            if (data.person && data.person !== "Unknown Person" && data.person !== lastPerson) {
+                detectionCount++;
+                lastPerson = data.person;
+                document.getElementById('detectionCount').innerText = detectionCount;
+                document.getElementById('lastEmotion').innerText = data.emotion;
+            }
+        } catch(e) { console.error(e); }
+    }, 1000);
+
+</script>
+
+</body>
+</html>

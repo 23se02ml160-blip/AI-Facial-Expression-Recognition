@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t.admin_panel }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                        url("../static/images/home-bg.jpg");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 30px;
+            background: rgba(8, 20, 45, 0.92);
+            border: 1px solid rgba(37, 99, 235, 0.35);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(12px);
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #00d2ff;
+            border-bottom: 2px solid rgba(0, 210, 255, 0.3);
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse; 
+            margin-top: 15px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .admin-table th {
+            background: #2563eb;
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .admin-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+            font-size: 14px;
+            background: transparent; 
+        }
+
+        .admin-table tr:hover td {
+            background: rgba(37, 99, 235, 0.2);
+        }
+
+        /* Force even rows to stay dark */
+        .admin-table tr:nth-child(even) {
+            background: rgba(8, 20, 45, 0.95);
+        }
+        .admin-table tr:nth-child(even) td {
+            color: #ffffff;
+        }
+
+        .email-btn {
+            background: #10b981;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: bold;
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .email-btn:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .back-btn-admin {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .back-btn-admin:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <h1>{{ t.admin_panel }}</h1>
+        <p class="subtitle">{{ t.view_all_users_history }}</p>
+
+        <h2>{{ t.registered_users }}</h2>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>{{ t.name }}</th>
+                    <th>{{ t.username }}</th>
+                    <th>{{ t.email }}</th>
+                    <th>{{ t.phone }}</th>
+                    <th>{{ t.action }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in all_users %}
+                <tr>
+                    <td>{{ user['name'] }}</td>
+                    <td>{{ user['username'] }}</td>
+                    <td>{{ user['email'] }}</td>
+                    <td>{{ user['phone'] }}</td>
+                    <td>
+                        <a href="mailto:{{ user['email'] }}?subject=Notification from Admin" class="email-btn">
+                            <i class="fa-solid fa-envelope"></i> {{ t.email_btn }}
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>{{ t.all_detection_logs }}</h2>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>{{ t.person }}</th>
+                    <th>{{ t.emotion }}</th>
+                    <th>{{ t.detected_at }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in all_logs %}
+                <tr>
+                    <td>{{ log.person_name }}</td>
+                    <td>{{ log.emotion }}</td>
+                    <td>{{ log.detected_at }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div style="text-align: center;">
+            <a href="{{ url_for('index') }}" class="back-btn-admin">← {{ t.back_to_dashboard }}</a>
+        </div>
+    </div>
+</body>
+</html>

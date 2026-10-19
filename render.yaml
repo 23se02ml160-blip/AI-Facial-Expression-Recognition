@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: facial-recognition
+    env: docker
+    plan: free
+    region: ohio # or your closest region
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: SECRET_KEY
+        sync: false
+      - key: EMAIL_ADDRESS
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false

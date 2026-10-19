@@ -1,0 +1,6 @@
+{
+    "python.analysis.diagnosticSeverity": {
+        "reportGeneralTypeIssues": "none",
+        "reportMissingImports": "none"
+    }
+}

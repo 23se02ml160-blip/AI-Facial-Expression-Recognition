@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t.registered_users }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <style>
+        /* Dark AI Background */
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                        url("../static/images/home-bg.jpg");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 40px;
+        }
+
+        /* Dark Glassy Card */
+        .table-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+            background: rgba(8, 20, 45, 0.92);
+            border: 1px solid rgba(37, 99, 235, 0.35);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(12px);
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+
+        /* Search Bar */
+        .search-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .search-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 16px;
+        }
+        .search-input::placeholder {
+            color: #999;
+        }
+        .search-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .search-btn:hover { background: #1d4ed8; }
+
+        /* CLEAN TABLE STYLES */
+        .person-table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .person-table th {
+            background: #2563eb;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .person-table td {
+            padding: 12px;
+            text-align: center;
+            color: white !important;
+            background: rgba(8, 20, 45, 0.92) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Force even rows to stay dark */
+        .person-table tr:nth-child(even) td {
+            background: rgba(8, 20, 45, 0.98) !important;
+        }
+
+        /* BUTTONS - Side by side */
+        .action-btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .view-btn, .edit-btn, .delete-btn {
+            display: inline-block !important;
+            margin: 0 !important;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+            box-shadow: none !important;
+            transition: 0.2s;
+        }
+
+        .view-btn { background: #007bff; }
+        .view-btn:hover { background: #0056b3; }
+        
+        .edit-btn { background: #ff9800; }
+        .edit-btn:hover { background: #e68900; }
+        
+        .delete-btn { background: #dc3545; }
+        .delete-btn:hover { background: #b02a37; }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="table-container">
+        <h1><i class="fa-solid fa-users"></i> {{ t.registered_users }}</h1>
+
+        <form action="/registered_persons" method="GET" class="search-form">
+            <input type="text" name="search" class="search-input" 
+                   placeholder="{{ t.search_placeholder }}" 
+                   value="{{ request.args.get('search', '') }}">
+            <button type="submit" class="search-btn">
+                <i class="fa-solid fa-search"></i> {{ t.search }}
+            </button>
+        </form>
+
+        <table class="person-table">
+            <thead>
+                <tr>
+                    <th>{{ t.id }}</th>
+                    <th>{{ t.username }}</th>
+                    <th>{{ t.name }}</th>
+                    <th>{{ t.action }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for person in people %}
+                <tr>
+                    <td>{{ person['id'] }}</td>
+                    <td>{{ person['username'] }}</td>
+                    <td>{{ person['name'] }}</td>
+                    <td>
+                        <div class="action-btn-group">
+                            <a href="{{ url_for('person_details', username=person['username']) }}" class="view-btn">
+                                <i class="fa-solid fa-eye"></i> {{ t.view }}
+                            </a>
+                            <a href="{{ url_for('edit_person', username=person['username']) }}" class="edit-btn">
+                                <i class="fa-solid fa-pen-to-square"></i> {{ t.edit }}
+                            </a>
+                            <a href="{{ url_for('delete_person_route', username=person['username']) }}" 
+                               class="delete-btn" 
+                               onclick="return confirm('Are you sure you want to delete {{ person.name }}? This cannot be undone.');">
+                                <i class="fa-solid fa-trash"></i> {{ t.delete }}
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div style="text-align: center;">
+            <a href="{{ url_for('index') }}" class="back-btn">
+                <i class="fa-solid fa-arrow-left"></i> {{ t.back_to_dashboard }}
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>

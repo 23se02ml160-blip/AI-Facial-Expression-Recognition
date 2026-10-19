@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t.face_detection_logs }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        /* Dark AI Background */
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                        url("../static/images/home-bg.jpg");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 40px;
+        }
+
+        /* Dark Glassy Card */
+        .logs-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+            background: rgba(8, 20, 45, 0.92);
+            border: 1px solid rgba(37, 99, 235, 0.35);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(12px);
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+
+        /* Buttons & Controls */
+        .top-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            display: inline-block;
+            cursor: pointer;
+            border: none;
+            transition: .3s;
+        }
+
+        .btn-back { background: linear-gradient(135deg, #2563eb, #4f46e5); }
+        .btn-back:hover { transform: translateY(-2px); }
+        
+        .btn-export { background: #28a745; }
+        .btn-export:hover { background: #218838; transform: translateY(-2px); }
+        
+        .btn-filter { background: #2563eb; }
+
+        /* Date Inputs & Labels */
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            color: white;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        input[type="date"] {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0, 0, 0, 0.3) !important;
+            color: white;
+        }
+
+        /* Clean Dark Table */
+        .logs-table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .logs-table th {
+            background: #2563eb;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .logs-table td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
+            background: transparent !important;
+        }
+
+        .logs-table tr:hover { background: rgba(37, 99, 235, 0.2); }
+
+        .emotion-badge { background: rgba(255, 255, 255, 0.1); padding: 5px 10px; border-radius: 5px; font-weight: bold; }
+        
+        .action-link { color: #00d2ff; text-decoration: none; font-weight: bold; }
+        .action-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="logs-container">
+        <h1>{{ t.face_detection_logs }}</h1>
+
+        <div class="top-controls">
+            <a href="{{ url_for('index') }}" class="btn btn-back">
+                <i class="fa-solid fa-arrow-left"></i> {{ t.back_to_home }}
+            </a>
+            <a href="{{ url_for('export_logs') }}" class="btn btn-export">
+                <i class="fa-solid fa-download"></i> {{ t.export_csv }}
+            </a>
+        </div>
+
+        <form method="GET" action="{{ url_for('view_logs') }}" class="filter-group">
+            <label>{{ t.from }}:</label>
+            <input type="date" name="from_date" value="{{ from_date or '' }}">
+            <label>{{ t.to }}:</label>
+            <input type="date" name="to_date" value="{{ to_date or '' }}">
+            <button type="submit" class="btn btn-filter">
+                <i class="fa-solid fa-filter"></i> {{ t.filter }}
+            </button>
+        </form>
+
+        <table class="logs-table">
+            <thead>
+                <tr>
+                    <th>{{ t.person }}</th>
+                    <th>{{ t.emotion }}</th>
+                    <th>{{ t.detected_at }}</th>
+                    <th>{{ t.action }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.person_name }}</td>
+                    <td><span class="emotion-badge">{{ log.emotion }}</span></td>
+                    <td>{{ log.detected_at }}</td>
+                    <td>
+                        <a href="{{ url_for('view_person_logs', person_name=log.person_name) }}" class="action-link">
+                            {{ t.view_person_logs }}
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Face Encodings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="admin-container">
+        <h1 style="text-align:center; color:white;">Total Face Encodings</h1>
+        <table class="admin-table">
+            <thead><tr><th>Username</th><th>Number of Encodings</th></tr></thead>
+            <tbody>
+                {% for item in data %}
+                <tr><td>{{ item.username }}</td><td>{{ item.count }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div style="text-align:center; margin-top:20px;">
+            <a href="{{ url_for('index') }}" class="home-btn camera-btn">Back to Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

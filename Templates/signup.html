@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    <style>
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                        url("{{ url_for('static', filename='images/login_bg.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+        .overlay {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .signup-box {
+            max-width: 420px;
+            width: 100%;
+            background: rgba(8, 20, 45, 0.92);
+            border: 1px solid rgba(37, 99, 235, 0.35);
+            border-radius: 20px;
+            padding: 40px;
+            color: white;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(12px);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .signup-box h1 { text-align: center; font-size: 28px; margin-bottom: 10px; color: #00d2ff; }
+        .signup-box p.subtitle { text-align: center; color: #aaa; margin-bottom: 30px; font-size: 14px; }
+        .signup-box input {
+            width: 100%; padding: 14px; margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3); color: white; font-size: 16px; box-sizing: border-box;
+        }
+        .signup-box input:focus { outline: none; border-color: #00d2ff; }
+        .signup-box button {
+            width: 100%; padding: 14px; background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            border: none; border-radius: 8px; color: white; font-size: 18px; font-weight: bold; cursor: pointer;
+        }
+        .signup-box button:hover { transform: scale(1.02); }
+        .error { background: rgba(255, 0, 0, 0.2); color: #ff6b6b; padding: 10px; border-radius: 6px; margin-bottom: 15px; text-align: center; }
+        .success { background: rgba(0, 255, 0, 0.2); color: #51cf66; padding: 10px; border-radius: 6px; margin-bottom: 15px; text-align: center; }
+        .password-requirements { font-size: 12px; color: #888; margin-top: -10px; margin-bottom: 15px; }
+        .password-requirements li { list-style: none; padding: 2px 0; }
+        .password-requirements li::before { content: "• "; }
+        .password-requirements li.valid { color: #51cf66; }
+        .password-requirements li.valid::before { content: "✓ "; }
+        .password-requirements li.invalid { color: #ff6b6b; }
+        .password-requirements li.invalid::before { content: "✗ "; }
+        .login-link { text-align: center; margin-top: 20px; color: #aaa; }
+        .login-link a { color: #00d2ff; text-decoration: none; font-weight: bold; }
+        .otp-section { margin-top: 20px; padding-top: 20px; border-top: 1px solid #333; text-align: center; }
+        .otp-section h3 { color: #00d2ff; margin-bottom: 10px; }
+        .otp-section button { background: #28a745; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="overlay">
+        <div class="signup-box">
+            <h1>Create Account</h1>
+            <p class="subtitle">Join the AI Facial Expression Recognition System</p>
+
+            {% if error %}<div class="error">{{ error }}</div>{% endif %}
+            {% if success %}<div class="success">{{ success }}</div>{% endif %}
+
+            <form action="/signup" method="POST">
+                <input type="text" name="fullname" placeholder="Full Name" required>
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="email" name="email" placeholder="Email" required>
+                <input type="tel" name="phone" placeholder="Phone Number" required>
+                <input type="password" name="password" id="password" placeholder="Password" required>
+                <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+                
+                <div class="password-requirements">
+                    <ul>
+                        <li id="length" class="invalid">At least 6 characters</li>
+                        <li id="uppercase" class="invalid">At least one uppercase letter</li>
+                        <li id="lowercase" class="invalid">At least one lowercase letter</li>
+                        <li id="number" class="invalid">At least one number</li>
+                    </ul>
+                </div>
+                <button type="submit">Create Account</button>
+            </form>
+
+            <!-- OTP Section -->
+            {% if show_otp %}
+            <div class="otp-section">
+                <h3>Enter OTP sent to {{ email }}</h3>
+                <p style="color: yellow; font-size: 14px;">{{ status }}</p>
+                <form action="/verify_otp" method="POST">
+                    <input type="text" name="otp" placeholder="Enter 6-digit code" maxlength="6" required>
+                    <button type="submit">Verify & Continue</button>
+                </form>
+
+                <!-- NEW: Resend OTP Button -->
+                <div style="text-align: center; margin-top: 15px;">
+                    <button id="resendBtn" type="button" disabled style="background: none; border: none; color: #00d2ff; cursor: not-allowed; text-decoration: underline; font-size: 14px;">
+                        Resend OTP in 60s
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="login-link">
+                Already have an account? <a href="{{ url_for('home') }}">Login</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Validation Script -->
+    <script>
+        const password = document.getElementById('password');
+        const length = document.getElementById('length');
+        const uppercase = document.getElementById('uppercase');
+        const lowercase = document.getElementById('lowercase');
+        const number = document.getElementById('number');
+        password.addEventListener('input', function() {
+            const val = this.value;
+            length.className = val.length >= 6 ? 'valid' : 'invalid';
+            uppercase.className = /[A-Z]/.test(val) ? 'valid' : 'invalid';
+            lowercase.className = /[a-z]/.test(val) ? 'valid' : 'invalid';
+            number.className = /[0-9]/.test(val) ? 'valid' : 'invalid';
+        });
+    </script>
+
+    <!-- NEW: Countdown & Resend Script -->
+    <script>
+        let timeLeft = 60;
+        const resendBtn = document.getElementById('resendBtn');
+        function startTimer() {
+            const timer = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    resendBtn.disabled = false;
+                    resendBtn.innerText = "Resend OTP";
+                    resendBtn.style.cursor = "pointer";
+                    resendBtn.style.color = "#ffcc00";
+                } else {
+                    resendBtn.disabled = true;
+                    resendBtn.style.cursor = "not-allowed";
+                    resendBtn.style.color = "#00d2ff";
+                    resendBtn.innerText = "Resend OTP in " + timeLeft + "s";
+                    timeLeft--;
+                }
+            }, 1000);
+        }
+        if (resendBtn) startTimer();
+
+        if (resendBtn) {
+            resendBtn.addEventListener('click', () => {
+                resendBtn.disabled = true;
+                timeLeft = 60;
+                resendBtn.innerText = "Resending...";
+                fetch('/resend_otp', { method: 'POST', headers: {'Content-Type': 'application/json'} })
+                .then(response => response.json())
+                .then(data => {
+                    const statusEl = document.querySelector('.otp-section p');
+                    if (statusEl) statusEl.innerText = data.message;
+                    const timer = setInterval(() => {
+                        if (timeLeft <= 0) {
+                            clearInterval(timer);
+                            resendBtn.disabled = false;
+                            resendBtn.innerText = "Resend OTP";
+                            resendBtn.style.cursor = "pointer";
+                        } else {
+                            resendBtn.disabled = true;
+                            resendBtn.innerText = "Resend OTP in " + timeLeft + "s";
+                            timeLeft--;
+                        }
+                    }, 1000);
+                })
+                .catch(error => { console.error('Error:', error); alert("Failed to resend OTP."); });
+            });
+        }
+    </script>
+</body>
+</html>

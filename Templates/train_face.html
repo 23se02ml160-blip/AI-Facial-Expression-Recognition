@@ -1,0 +1,129 @@
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Train Face</title>
+
+    <link rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    </head>
+
+    <body>
+
+    <div class="train-container">
+
+        <div class="train-card">
+
+            <h1>
+
+                <i class="fa-solid fa-camera"></i>
+
+                Face Training
+
+            </h1>
+
+            <h2>{{ username }}</h2>
+            <div class="progress-box">
+
+    <div class="progress-bar">
+
+    <div class="progress-fill"
+    id="progressFill">
+
+    </div>
+
+    </div>
+
+    <p id="progressText">
+
+    Captured 0 / 100
+
+    </p>
+
+    </div>
+
+            <p>
+
+                Position your face inside the camera.
+
+                Look left, right and straight.
+
+            </p>
+    <div class="training-instructions">
+        <p>🛑 Your face is training. Please wait...</p>
+        <p>Look at the camera and turn:</p>
+        <ul>
+            <li>Left ➡️</li>
+            <li>Right ⬅️</li>
+            <li>Up ⬆️</li>
+            <li>Down ⬇️</li>
+        </ul>
+    </div>
+            <div class="camera-preview">
+        <h3>Camera Preview</h3>
+        <p>Click <strong>Start Training</strong> to automatically capture your face.</p>
+    </div>
+
+            <form method="POST">
+
+                <button class="train-btn">
+
+                    <i class="fa-solid fa-face-smile"></i>
+
+                    Start Training
+
+                </button>
+
+            </form>
+
+            {% if error %}
+
+            <div class="error-box">
+
+                {{ error }}
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+    <script>
+
+    setInterval(function(){
+
+    fetch("/training_status")
+
+    .then(r=>r.json())
+
+    .then(data=>{
+
+    let percent=(data.current/data.total)*100;
+
+    document.getElementById("progressFill").style.width=percent+"%";
+
+    document.getElementById("progressText").innerHTML=
+
+    "Captured "+data.current+" / "+data.total;
+
+    });
+
+    },300);
+
+    </script>
+    </body>
+
+    </html>

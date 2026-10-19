@@ -1,0 +1,2 @@
+-- database: /path/to/database.db
+ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0;

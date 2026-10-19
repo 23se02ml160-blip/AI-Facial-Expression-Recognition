@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ person_name }} - Detection Logs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .logs-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .log-table th {
+            background: #333;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        .log-table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        .log-table tr:hover {
+            background: #f9f9f9;
+        }
+        .emotion-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+            text-align: center;
+            min-width: 80px;
+        }
+        .emotion-happy { background: #90EE90; color: #000; }
+        .emotion-sad { background: #87CEEB; color: #000; }
+        .emotion-angry { background: #FF6B6B; color: white; }
+        .emotion-fear { background: #FFB6C1; color: #000; }
+        .emotion-surprise { background: #FFD700; color: #000; }
+        .emotion-neutral { background: #D3D3D3; color: #000; }
+        .emotion-disgust { background: #98D8C8; color: #000; }
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .back-btn:hover {
+            background: #555;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-card h3 {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">AI Facial Expression Recognition</div>
+        <ul>
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('view_logs') }}">All Logs</a></li>
+        </ul>
+    </nav>
+
+    <div class="logs-container">
+        <a href="{{ url_for('view_logs') }}" class="back-btn">← Back to All Logs</a>
+        <h1>Detection Logs for: {{ person_name }}</h1>
+        
+        {% if logs %}
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Total Detections</h3>
+                <div class="value">{{ logs|length }}</div>
+            </div>
+        </div>
+
+        <table class="log-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Detected Emotion</th>
+                    <th>Date & Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>
+                        <span class="emotion-badge emotion-{{ log.emotion.lower() }}">
+                            {{ log.emotion }}
+                        </span>
+                    </td>
+                    <td>{{ log.detected_at }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p style="text-align: center; margin-top: 20px; color: #666;">
+            Showing latest 100 detections for this person
+        </p>
+        {% else %}
+        <p style="text-align: center; font-size: 18px; color: #999; padding: 40px;">
+            No detections found for {{ person_name }}.
+        </p>
+        {% endif %}
+    </div>
+</body>
+</html>

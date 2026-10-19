@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Login Information</title>
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='style.css') }}">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+</head>
+
+<body>
+
+<header class="navbar">
+
+<div class="logo">
+<i class="fa-solid fa-brain"></i>
+AI Facial Expression Recognition
+</div>
+
+</header>
+
+<div class="login-info-page">
+
+<div class="login-info-card">
+
+<h2>
+<i class="fa-solid fa-user-shield"></i>
+Login Information
+</h2>
+
+<table>
+
+<tr>
+<td><b>Username</b></td>
+<td>{{ session['user'] }}</td>
+</tr>
+
+<tr>
+<td><b>Role</b></td>
+<td>Administrator</td>
+</tr>
+
+<tr>
+<td><b>Status</b></td>
+<td style="color:lime;">Online</td>
+</tr>
+
+<tr>
+<td><b>Application</b></td>
+<td>AI Facial Expression Recognition</td>
+</tr>
+
+</table>
+
+<br>
+
+<a href="{{ url_for('index') }}" class="home-btn camera-btn">
+Back to Home
+</a>
+
+</div>
+
+</div>
+
+</body>
+</html>

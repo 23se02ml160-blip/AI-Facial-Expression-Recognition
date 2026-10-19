@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Analytics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                        url("../static/images/home-bg.jpg");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            color: white;
+        }
+        .analytics-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 40px;
+            background: rgba(8, 20, 45, 0.92);
+            border: 1px solid rgba(37, 99, 235, 0.35);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(12px);
+        }
+        h1 { color: #00d2ff; text-align: center; margin-bottom: 15px; font-size: 32px; }
+        .subtitle { text-align: center; color: #aaa; margin-bottom: 30px; font-size: 14px; }
+        .chart-wrapper {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        .summary-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 15px 30px;
+            background: rgba(37, 99, 235, 0.15);
+            border-radius: 12px;
+            border: 1px solid rgba(37, 99, 235, 0.3);
+        }
+        .stat-item h3 { font-size: 28px; color: #00d2ff; margin: 0 0 5px; }
+        .stat-item p { font-size: 13px; color: #aaa; margin: 0; }
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 14px 30px;
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35);
+        }
+        .no-data {
+            text-align: center;
+            color: #aaa;
+            padding: 40px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="analytics-container">
+        <h1>📊 Emotion Analytics</h1>
+        <p class="subtitle">Distribution of emotions detected in your system</p>
+
+        {% if emotions and emotions|length > 0 %}
+            <!-- Hidden data element - VS Code will not complain about this -->
+            <div id="chartData"
+                 data-emotions='{{ emotions | tojson }}'
+                 data-counts='{{ counts | tojson }}'
+                 style="display: none;"></div>
+
+            <div class="summary-stats">
+                <div class="stat-item">
+                    <h3>{{ counts|sum }}</h3>
+                    <p>Total Detections</p>
+                </div>
+                <div class="stat-item">
+                    <h3>{{ emotions|length }}</h3>
+                    <p>Unique Emotions</p>
+                </div>
+                <div class="stat-item">
+                    <h3>{{ counts|max }}</h3>
+                    <p>Most Frequent</p>
+                </div>
+            </div>
+
+            <div class="chart-wrapper">
+                <canvas id="emotionChart"></canvas>
+            </div>
+        {% else %}
+            <div class="no-data">
+                <p>📭 No emotion data available yet.</p>
+                <p style="font-size: 13px;">Start the camera and detect some faces to see analytics.</p>
+            </div>
+        {% endif %}
+
+        <div style="text-align: center;">
+            <a href="{{ url_for('index') }}" class="back-btn">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Chart script - now VS Code friendly! -->
+    <script>
+        const chartDataEl = document.getElementById('chartData');
+
+        if (chartDataEl) {
+            const emotionsData = JSON.parse(chartDataEl.dataset.emotions);
+            const countsData = JSON.parse(chartDataEl.dataset.counts);
+
+            const ctx = document.getElementById('emotionChart').getContext('2d');
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: emotionsData,
+                    datasets: [{
+                        label: 'Detections',
+                        data: countsData,
+                        backgroundColor: [
+                            '#ef4444', '#f97316', '#eab308', '#22c55e',
+                            '#3b82f6', '#8b5cf6', '#ec4899'
+                        ],
+                        borderColor: '#0f172a',
+                        borderWidth: 3,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: 'white',
+                                font: { size: 14, family: 'Poppins' },
+                                padding: 15,
+                                usePointStyle: true
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Emotion Distribution',
+                            color: 'white',
+                            font: { size: 18, family: 'Poppins', weight: 'bold' }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            titleColor: '#00d2ff',
+                            bodyColor: 'white',
+                            borderColor: '#2563eb',
+                            borderWidth: 1,
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

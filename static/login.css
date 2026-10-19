@@ -1,0 +1,222 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+
+body {
+    background-image: url('/static/images/login_bg.png'); /* Make sure this name matches your file */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+.overlay{
+    width:100%;
+    height:100%;
+
+    background:rgba(0,0,0,0.45);
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.login-box{
+    width:420px;
+
+    background:rgba(0,0,0,0.35);
+
+    backdrop-filter:blur(12px);
+
+    border:1px solid rgba(255,255,255,.25);
+
+    border-radius:20px;
+
+    padding:40px;
+
+    text-align:center;
+
+    color:white;
+
+    box-shadow:0 0 30px rgba(0,255,170,.30);
+}
+
+.login-box h1{
+    font-size:32px;
+    margin-bottom:10px;
+    color:#00ffb7;
+}
+
+.login-box p{
+    margin-bottom:30px;
+    color:#ddd;
+}
+
+.login-box input{
+    width:100%;
+    padding:14px;
+    margin:12px 0;
+
+    border:none;
+    outline:none;
+
+    border-radius:10px;
+
+    font-size:16px;
+
+    background:rgba(255,255,255,.15);
+
+    color:white;
+}
+
+.login-box input::placeholder{
+    color:#ddd;
+}
+
+.login-box button{
+    width:100%;
+    padding:14px;
+
+    margin-top:20px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#00d084;
+
+    color:white;
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.login-box button:hover{
+    background:#00b36b;
+    transform:scale(1.03);
+}
+
+.error{
+    color:#ff5555;
+    margin-bottom:15px;
+    font-size:15px;
+}
+/* Add to existing login.css */
+
+/* Success message */
+.success {
+    background: rgba(0, 255, 0, 0.15);
+    color: #51cf66;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    text-align: center;
+    border: 1px solid rgba(0, 255, 0, 0.2);
+}
+
+/* Sign up link */
+.signup-link {
+    text-align: center;
+    margin-top: 20px;
+    color: #aaa;
+    font-size: 14px;
+}
+
+.signup-link a {
+    color: #00d2ff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.signup-link a:hover {
+    text-decoration: underline;
+}
+
+/* Demo credentials */
+.demo-credentials {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 12px;
+    color: #666;
+    border-top: 1px solid #333;
+    padding-top: 15px;
+}
+/* Add to existing login.css - Standard background-clip with fallbacks */
+
+/* For the gradient text in login box */
+.login-box h1 {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 10px;
+    background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+    -webkit-background-clip: text;
+    background-clip: text;  /* Standard property */
+    -webkit-text-fill-color: transparent;
+    color: #00d2ff;  /* Fallback for browsers that don't support background-clip */
+}
+
+/* If you have any other gradient text elements */
+.gradient-text {
+    background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: #00d2ff;  /* Fallback color */
+}
+/* In login.css - Update the h1 style */
+.login-box h1 {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 10px;
+    background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+    -webkit-background-clip: text;
+    background-clip: text;  /* Standard property */
+    -webkit-text-fill-color: transparent;
+    color: #00d2ff;  /* Fallback color */
+}
+
+/* If you have any button gradients */
+.login-box button {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+/* Fallback for browsers that don't support background-clip */
+@supports not (background-clip: text) {
+    .login-box h1,
+    .signup-box h1 {
+        background: none;
+        -webkit-text-fill-color: #00d2ff;
+        color: #00d2ff;
+    }
+}
+
+/* For browsers that support it */
+@supports (background-clip: text) {
+    .login-box h1,
+    .signup-box h1 {
+        background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+    }
+}

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Facial Expression Recognition</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <style>
+        .header-profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid white;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        .dropdown-header {
+            text-align: center;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            background: #f8fafc;
+        }
+        .dropdown-header img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #2563eb;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+        .dropdown-header h3 { margin: 0; color: #222; font-size: 18px; }
+        .dropdown-header p { margin: 5px 0 0; color: #666; font-size: 14px; }
+
+        /* Collapsible Language Section */
+        .dropdown-language {
+            border-bottom: 1px solid #eee;
+            background: #f8fafc;
+        }
+
+        .language-toggle {
+            width: 100%;
+            padding: 15px 20px;
+            background: none;
+            border: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 15px;
+            color: #222;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .language-toggle:hover {
+            background: #eef2f7;
+        }
+
+        .language-toggle i {
+            color: #2563eb;
+            margin-right: 8px;
+        }
+
+        .current-lang {
+            font-size: 13px;
+            font-weight: 600;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            padding: 4px 10px;
+            background: #dbeafe;
+            border-radius: 6px;
+        }
+
+        /* Language Options (hidden by default) */
+        .lang-options {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: #ffffff;
+        }
+
+        .lang-options.show {
+            max-height: 300px;
+        }
+
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px 12px 40px;
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            transition: 0.2s;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .lang-option:last-child {
+            border-bottom: none;
+        }
+
+        .lang-option:hover {
+            background: #f0f7ff;
+            color: #2563eb;
+        }
+
+        .lang-option.active {
+            background: #dbeafe;
+            color: #1e40af;
+            font-weight: 600;
+        }
+
+        .lang-option.active::after {
+            content: "✓";
+            margin-left: auto;
+            color: #2563eb;
+            font-weight: bold;
+        }
+
+        .flag-code {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 24px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .lang-option.active .flag-code {
+            background: #2563eb;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="navbar">
+        <div class="logo">
+            <i class="fa-solid fa-brain"></i>
+            AI Facial Expression Recognition
+        </div>
+        <div class="profile-menu">
+            <button class="profile-btn" id="profileBtn">
+                <img src="{{ url_for('static', filename=profile_pic) }}" class="header-profile-img" alt="Profile">
+                <span>{{ session['user'] }}</span>
+                <i class="fa-solid fa-angle-down"></i>
+            </button>
+            <div class="dropdown-content" id="profileDropdown">
+                <div class="dropdown-header">
+                    <img src="{{ url_for('static', filename=profile_pic) }}" alt="Profile Picture">
+                    <h3>{{ session['user'] }}</h3>
+                    <p>{% if session['is_admin'] %}Administrator{% else %}User{% endif %}</p>
+                </div>
+
+                <!-- Collapsible Language Section -->
+                <div class="dropdown-language">
+                    <button type="button" class="language-toggle" id="languageToggle">
+                        <span><i class="fa-solid fa-globe"></i> {{ t.language }}</span>
+                        <span class="current-lang">
+                            {% if current_lang == 'en' %}EN
+                            {% elif current_lang == 'hi' %}हिं
+                            {% elif current_lang == 'gu' %}ગુ
+                            {% elif current_lang == 'te' %}తె
+                            {% endif %}
+                            <i class="fa-solid fa-chevron-down" style="margin-left: 5px; font-size: 10px;"></i>
+                        </span>
+                    </button>
+                    <div class="lang-options" id="langOptions">
+                        <a href="{{ url_for('set_language', lang='en') }}" class="lang-option {% if current_lang == 'en' %}active{% endif %}">
+                            <span class="flag-code">EN</span>
+                            <span>English</span>
+                        </a>
+                        <a href="{{ url_for('set_language', lang='hi') }}" class="lang-option {% if current_lang == 'hi' %}active{% endif %}">
+                            <span class="flag-code">हिं</span>
+                            <span>हिन्दी</span>
+                        </a>
+                        <a href="{{ url_for('set_language', lang='gu') }}" class="lang-option {% if current_lang == 'gu' %}active{% endif %}">
+                            <span class="flag-code">ગુ</span>
+                            <span>ગુજરાતી</span>
+                        </a>
+                        <a href="{{ url_for('set_language', lang='te') }}" class="lang-option {% if current_lang == 'te' %}active{% endif %}">
+                            <span class="flag-code">తె</span>
+                            <span>తెలుగు</span>
+                        </a>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('profile') }}"><i class="fa-solid fa-user"></i> {{ t.my_profile }}</a>
+                <a href="{{ url_for('change_password') }}"><i class="fa-solid fa-key"></i> {{ t.change_password }}</a>
+                <a href="{{ url_for('login_info') }}"><i class="fa-solid fa-clock"></i> {{ t.login_info }}</a>
+                <a href="{{ url_for('settings') }}"><i class="fa-solid fa-gear"></i> {{ t.settings }}</a>
+                <hr>
+                <a href="/"><i class="fa-solid fa-right-from-bracket"></i> {{ t.logout }}</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard-banner">
+        <h1>{{ t.welcome }} {{ session['user'] }} 👋</h1>
+        <p>{{ t.dashboard }}</p>
+    </div>
+
+    <!-- ================= DASHBOARD CARDS ================= -->
+    <div class="dashboard-grid">
+
+        <!-- ADMIN-ONLY CARDS -->
+        {% if session['is_admin'] %}
+        <a href="{{ url_for('registered_persons') }}">
+            <div class="dashboard-card">
+                <i class="fa-solid fa-users"></i>
+                <h2>{{ total_people }}</h2>
+                <p>{{ t.total_registered_persons }}</p>
+            </div>
+        </a>
+        <a href="{{ url_for('face_encodings_view') }}">
+            <div class="dashboard-card">
+                <i class="fa-solid fa-face-smile"></i>
+                <h2>{{ total_faces }}</h2>
+                <p>{{ t.total_face_encodings }}</p>
+            </div>
+        </a>
+        {% endif %}
+
+        <!-- EVERYONE SEES -->
+        <a href="{{ url_for('view_logs') }}">
+            <div class="dashboard-card">
+                <i class="fa-solid fa-chart-line"></i>
+                <h2>{{ total_logs }}</h2>
+                <p>{{ t.total_detections }}</p>
+            </div>
+        </a>
+        <a href="{{ url_for('today_logs') }}">
+            <div class="dashboard-card">
+                <i class="fa-solid fa-calendar-day"></i>
+                <h2>{{ today_count }}</h2>
+                <p>{{ t.today_detections }}</p>
+            </div>
+        </a>
+
+        <!-- ADMIN-ONLY -->
+        {% if session['is_admin'] %}
+        <div class="dashboard-card">
+            <i class="fa-solid fa-user-check"></i>
+            <h2>{{ unique_people }}</h2>
+            <p>{{ t.unique_persons_detected }}</p>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <!-- ================= ACTION BUTTONS ================= -->
+    <div class="home-buttons">
+        <a href="{{ url_for('camera') }}" class="home-btn camera-btn">
+            <i class="fa-solid fa-camera"></i>
+            {% if session['is_admin'] %}{{ t.start_camera }}{% else %}{{ t.start_my_camera }}{% endif %}
+        </a>
+        {% if session['is_admin'] %}
+        <a href="{{ url_for('register_person_page') }}" class="home-btn register-btn">
+            <i class="fa-solid fa-user-plus"></i> {{ t.register_person }}
+        </a>
+        <a href="{{ url_for('admin_panel') }}" class="home-btn" style="background: #8b5cf6;">
+            <i class="fa-solid fa-shield-halved"></i> {{ t.admin_panel }}
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="status-box">
+    {{ t.camera_status }} : <span class="online">🟢 {{ t.online }}</span>
+    </div>
+
+    <h2 style="margin-top:40px;">{{ t.recent_attendance }}</h2>
+   <table class="logs-table">
+    <thead>
+        <tr>
+            <th>{{ t.person }}</th>
+            <th>{{ t.emotion }}</th>
+            <th>{{ t.detected_at }}</th>
+        </tr>
+    </thead>
+        <tbody>
+            {% for log in recent_logs %}
+            <tr>
+                <td>{{ log.person_name }}</td>
+                <td>{{ log.emotion }}</td>
+                <td>{{ log.detected_at }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="dashboard-footer">
+    {{ t.footer_text }}
+    </div>
+
+    <script>
+        // Profile dropdown toggle
+        const profileBtn = document.getElementById("profileBtn");
+        const dropdown = document.getElementById("profileDropdown");
+
+        profileBtn.addEventListener("click", function(e) {
+            e.stopPropagation();
+            dropdown.classList.toggle("show");
+        });
+        document.addEventListener("click", function() {
+            dropdown.classList.remove("show");
+        });
+        dropdown.addEventListener("click", function(e) {
+            e.stopPropagation();
+        });
+
+        // Language toggle
+        const languageToggle = document.getElementById("languageToggle");
+        const langOptions = document.getElementById("langOptions");
+
+        if (languageToggle) {
+            languageToggle.addEventListener("click", function(e) {
+                e.stopPropagation();
+                langOptions.classList.toggle("show");
+            });
+        }
+    </script>
+</body>
+</html>
